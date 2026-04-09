@@ -141,6 +141,7 @@ Sales-Data-Mart/
     ├── dim_date.png
     └── fact_orders.png
 
+---
 
 ## How to Run
 
