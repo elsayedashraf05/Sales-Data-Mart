@@ -102,7 +102,7 @@ The data warehouse follows a **Star Schema** with one central fact table surroun
 ```
 
 > 📸 *Add your schema diagram screenshot here:*
-> `![DWH Schema](images/design_schema.JPG)`
+> ![DWH Schema](images/design_schema.JPG)
 
 ---
 
@@ -153,14 +153,14 @@ The DWH schema was implemented using SQL Server DDL statements. Key design decis
 - [`etl_queries.sql`](etl_queries.sql) — OLTP source views used in extraction
 
 > 📸 *Add your SQL Server database diagram screenshot here:*
-> `![Database Diagram](images/Diagram.jpg)`
+> ![Database Diagram](images/Diagram.jpg)
 
 > 📸 *Add screenshots of each populated DWH table here:*
-> `![DimCustomer Table](images/DimCustomer.jpg)`
-> `![DimProduct Table](images/DimProduct.jpg)`
-> `![DimSalesMan Table](images/DimSalesMan.jpg)`
-> `![Dim_Date Table](images/Dim_Date.jpg)`
-> `![FactOrders Table](images/factorders.jpg)`
+> ![DimCustomer Table](images/DimCustomer.jpg)
+> ![DimProduct Table](images/DimProduct.jpg)
+> ![DimSalesMan Table](images/DimSalesMan.jpg)
+> ![Dim_Date Table](images/Dim_Date.jpg)
+> ![FactOrders Table](images/factorders.jpg)
 
 ---
 
