@@ -122,7 +122,9 @@ The ETL process is implemented in a **Jupyter Notebook** (`etl_dwh.ipynb`) with 
 
 ## Repository Structure
 
-
+## Repository Structure
+ 
+```
 Sales-Data-Mart/
 │
 ├── README.md                  # This file
@@ -140,6 +142,7 @@ Sales-Data-Mart/
     ├── dim_salesman.png
     ├── dim_date.png
     └── fact_orders.png
+```
 
 ---
 
