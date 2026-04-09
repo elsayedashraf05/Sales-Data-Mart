@@ -68,9 +68,8 @@ The ETL pipeline follows a classic **Extract → Transform → Load** architectu
 
 The data warehouse follows a **Star Schema** with one central fact table surrounded by four dimension tables.
 
-```
 
-> 📸 *Add your schema diagram screenshot here:*
+
 > ![DWH Schema](images/design_schema.JPG)
 
 ---
@@ -123,7 +122,7 @@ The ETL process is implemented in a **Jupyter Notebook** (`etl_dwh.ipynb`) with 
 
 ## Repository Structure
 
-```
+
 Sales-Data-Mart/
 │
 ├── README.md                  # This file
@@ -141,9 +140,7 @@ Sales-Data-Mart/
     ├── dim_salesman.png
     ├── dim_date.png
     └── fact_orders.png
-```
 
----
 
 ## How to Run
 
