@@ -4,22 +4,6 @@
 
 ---
 
-## 📌 Table of Contents
-
-- [Project Overview](#project-overview)
-- [Tech Stack](#tech-stack)
-- [Project Steps](#project-steps)
-  - [Step 1 — Pipeline Design](#step-1--pipeline-design)
-  - [Step 2 — DWH Schema Design](#step-2--dwh-schema-design)
-  - [Step 3 — Data Mapping](#step-3--data-mapping)
-  - [Step 4 — DDL Implementation](#step-4--ddl-implementation)
-  - [Step 5 — ETL Using Python](#step-5--etl-using-python)
-- [Repository Structure](#repository-structure)
-- [How to Run](#how-to-run)
-- [Author](#author)
-
----
-
 ## Project Overview
 
 This project implements a **Sales Data Mart** based on a transactional OLTP system (`Sales_OLTP`). The goal is to transform raw operational data into an analytics-ready **Star Schema** data warehouse (`Sales_DWH`) that enables efficient reporting and business intelligence.
@@ -61,8 +45,8 @@ The ETL pipeline follows a classic **Extract → Transform → Load** architectu
 
 ```
  ┌─────────────────┐     Extract      ┌───────────────────┐     Load     ┌──────────────────┐
- │   Sales_OLTP    │ ───────────────► │  Python / pandas  │ ───────────► │   Sales_DWH      │
- │  (SQL Server)   │                  │  (Transform Layer) │              │  (Star Schema)   │
+ │   Sales_OLTP    │ ───────────────► │    DWH / OLAP     │ ───────────► │   Sales_DWH      │
+ │  (SQL Server)   │                  │       ETL         │              │  (SQL Server)    │
  └─────────────────┘                  └───────────────────┘              └──────────────────┘
 ```
 
@@ -77,7 +61,7 @@ The ETL pipeline follows a classic **Extract → Transform → Load** architectu
 **Load:** Row-by-row insert into each DWH dimension/fact table via `pyodbc` cursor execution.
 
 > 📸 *Add your pipeline diagram image here:*
-> `![Pipeline Design](images/design_pipeline.JPG)`
+> ![Pipeline Design](images/design_pipeline.JPG)
 
 ---
 
