@@ -60,7 +60,6 @@ The ETL pipeline follows a classic **Extract → Transform → Load** architectu
 
 **Load:** Row-by-row insert into each DWH dimension/fact table via `pyodbc` cursor execution.
 
-> 📸 *Add your pipeline diagram image here:*
 > ![Pipeline Design](images/design_pipeline.JPG)
 
 ---
@@ -69,36 +68,6 @@ The ETL pipeline follows a classic **Extract → Transform → Load** architectu
 
 The data warehouse follows a **Star Schema** with one central fact table surrounded by four dimension tables.
 
-```
-                    ┌─────────────────┐
-                    │   DimCustomer   │
-                    │─────────────────│
-                    │ CustomerID (PK) │
-                    │ FullName        │
-                    │ Phone           │
-                    │ Email           │
-                    │ GenderName      │
-                    └────────┬────────┘
-                             │
-┌──────────────┐    ┌────────▼────────────┐    ┌─────────────────┐
-│  DimProduct  │    │     FactOrders      │    │  DimSalesMan    │
-│──────────────│    │─────────────────────│    │─────────────────│
-│ ProductID PK │◄───│ FactOrderSK (PK)    │───►│ SalesManID (PK) │
-│ ProductName  │    │ OrderID             │    │ FullName        │
-│ Price        │    │ ProductID (FK)      │    │ Email           │
-│ SubCategory  │    │ CustomerID (FK)     │    │ Phone           │
-│ CategoryName │    │ SalesManID (FK)     │    │ City            │
-└──────────────┘    │ Order_Date (FK)     │    └─────────────────┘
-                    │ Quantity            │
-                    │ TotalPrice          │    ┌─────────────────┐
-                    └────────┬────────────┘    │    Dim_Date     │
-                             │                 │─────────────────│
-                             └────────────────►│ Date_SK (PK)    │
-                                               │ Full_Date       │
-                                               │ Year / Quarter  │
-                                               │ Month / Day     │
-                                               │ Is_Weekend      │
-                                               └─────────────────┘
 ```
 
 > 📸 *Add your schema diagram screenshot here:*
@@ -110,30 +79,6 @@ The data warehouse follows a **Star Schema** with one central fact table surroun
 
 The mapping document (`Maping.xlsx`) defines the full **source-to-target column lineage** for each dimension and the fact table.
 
-| Target Table | Target Column | Source Table(s) | Source Column | Transformation |
-|---|---|---|---|---|
-| DimCustomer | CustomerID | Customer | CustomerID | Direct |
-| DimCustomer | FullName | Customer | FirstName, LastName | `CONCAT(FirstName, ' ', LastName)` |
-| DimCustomer | Phone | Customer | PhoneNumber | Remove dashes |
-| DimCustomer | Email | Customer | Email | Direct |
-| DimCustomer | GenderName | Gender | GenderName | Left Join on GenderID |
-| DimProduct | ProductID | Product | ProductID | Direct |
-| DimProduct | ProductName | Product | ProductName | Direct |
-| DimProduct | Price | Product | Price | Direct |
-| DimProduct | SubCategoryName | SubCategory | SubCategoryName | Left Join on SubCategoryID |
-| DimProduct | CategoryName | Category | CategoryName | Left Join on CategoryID |
-| DimSalesMan | SalesManID | Salesman | SalesmanID | Direct |
-| DimSalesMan | FullName | Salesman | FirstName, LastName | `CONCAT(FirstName, ' ', LastName)` |
-| DimSalesMan | Phone | Salesman | PhoneNumber | Remove dashes |
-| DimSalesMan | Email | Salesman | Email | Direct |
-| DimSalesMan | City | Address | City | Left Join on AddressID |
-| FactOrders | OrderID | Orders | OrderID | Direct |
-| FactOrders | ProductID | OrderDetails | ProductID | FK Reference |
-| FactOrders | CustomerID | Orders | CustomerID | FK Reference |
-| FactOrders | SalesManID | Orders | SalesmanID | FK Reference |
-| FactOrders | Order_Date | Orders | OrderDate | `strftime('%Y%m%d').astype(int)` |
-| FactOrders | Quantity | OrderDetails | Quantity | Cast to float64 |
-| FactOrders | TotalPrice | OrderDetails | TotalPrice | Direct |
 
 > 📎 Full mapping file: [`Maping.xlsx`](Maping.xlsx)
 
@@ -152,10 +97,9 @@ The DWH schema was implemented using SQL Server DDL statements. Key design decis
 - [`sales_dwh_query.sql`](sales_dwh_query.sql) — Full DDL for all tables + stored procedure
 - [`etl_queries.sql`](etl_queries.sql) — OLTP source views used in extraction
 
-> 📸 *Add your SQL Server database diagram screenshot here:*
+
 > ![Database Diagram](images/Diagram.jpg)
 
-> 📸 *Add screenshots of each populated DWH table here:*
 > ![DimCustomer Table](images/DimCustomer.jpg)
 > ![DimProduct Table](images/DimProduct.jpg)
 > ![DimSalesMan Table](images/DimSalesMan.jpg)
@@ -169,56 +113,9 @@ The DWH schema was implemented using SQL Server DDL statements. Key design decis
 The ETL process is implemented in a **Jupyter Notebook** (`etl_dwh.ipynb`) with three clearly separated stages:
 
 #### Extract
-
-```python
-import pyodbc
-import pandas as pd
-
-source_conn = pyodbc.connect(
-    "DRIVER={ODBC Driver 17 for SQL Server};"
-    "SERVER=.\SQLEXPRESS;"
-    "DATABASE=Sales_OLTP;"
-    "Trusted_Connection=yes;"
-)
-
-customer_df  = pd.read_sql("SELECT CustomerID, CONCAT(FirstName,' ',LastName) AS FullName, ...", source_conn)
-product_df   = pd.read_sql("SELECT ProductID, ProductName, Price, SubCategoryName, CategoryName ...", source_conn)
-salesman_df  = pd.read_sql("SELECT * FROM salesman_view", source_conn)
-factorders_df = pd.read_sql("SELECT * FROM order_view", source_conn)
-```
-
 #### Transform
-
-```python
-# Clean phone numbers
-customer_df['Phone']  = customer_df['Phone'].replace('-', '')
-salesman_df['Phone']  = salesman_df['Phone'].replace('-', '')
-
-# Convert OrderDate to integer date key (YYYYMMDD)
-factorders_df['Order_Date'] = factorders_df['Order_Date'].dt.strftime('%Y%m%d').astype(int)
-
-# Cast Quantity to float64
-factorders_df['Quantity'] = factorders_df['Quantity'].astype('float64')
-```
-
 #### Load
 
-```python
-destination_conn = pyodbc.connect(
-    "DRIVER={ODBC Driver 17 for SQL Server};"
-    "SERVER=.\SQLEXPRESS;"
-    "DATABASE=Sales_DWH;"
-    "Trusted_Connection=yes;"
-)
-
-# Example: Load DimCustomer
-for index, row in customer_df.iterrows():
-    cursor.execute(
-        "INSERT INTO DimCustomer (CustomerID, FullName, Phone, Email, GenderName) VALUES (?, ?, ?, ?, ?)",
-        row['CustomerID'], row['FullName'], row['Phone'], row['Email'], row['GenderName']
-    )
-    destination_conn.commit()
-```
 
 > 📓 Full notebook: [`etl_dwh.ipynb`](etl_dwh.ipynb)
 
